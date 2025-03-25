@@ -47,27 +47,77 @@ def create_student(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
-@csrf_exempt
-@require_http_methods(["PUT"])
-def update_student(request, student_id):
+# @csrf_exempt
+# @require_http_methods(["PUT"])
+# def update_student(request, student_id):
+#     try:
+#         data = json.loads(request.body)
+#         try:
+#             student = Student.objects.get(studentID=student_id)
+#         except Student.DoesNotExist:
+#             return JsonResponse({"error": "Student not found"}, status=404)
+        
+#         student.studentName = data.get("studentName", student.studentName)
+#         student.course = data.get("course", student.course)
+#         student.presentDate = data.get("presentDate", student.presentDate)
+#         student.save()
+        
+#         return JsonResponse({
+#             "message": "Student updated successfully",
+#             "studentID": student.studentID,
+#             "studentName": student.studentName,
+#             "course": student.course,
+#             "presentDate": str(student.presentDate)
+#         }, status=200)
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=500)
+    
+# @csrf_exempt
+# @require_http_methods(["DELETE"])
+# def delete_student(request, student_id):
     try:
-        data = json.loads(request.body)
-        try:
-            student = Student.objects.get(studentID=student_id)
-        except Student.DoesNotExist:
-            return JsonResponse({"error": "Student not found"}, status=404)
-        
-        student.studentName = data.get("studentName", student.studentName)
-        student.course = data.get("course", student.course)
-        student.presentDate = data.get("presentDate", student.presentDate)
-        student.save()
-        
-        return JsonResponse({
-            "message": "Student updated successfully",
-            "studentID": student.studentID,
-            "studentName": student.studentName,
-            "course": student.course,
-            "presentDate": str(student.presentDate)
-        }, status=200)
+        if student_id not in STUDENTS:
+            return JsonResponse({"error": "Student not exists"}, status=404)
+        del STUDENTS[student_id]
+        return JsonResponse({"message": "Student deleted successfully"}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+def student_detail(request, student_id):
+    if request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+            try:
+                student = Student.objects.get(studentID=student_id)
+            except Student.DoesNotExist:
+                return JsonResponse({"error": "Student not found"}, status=404)
+            
+            student.studentName = data.get("studentName", student.studentName)
+            student.course = data.get("course", student.course)
+            student.presentDate = data.get("presentDate", student.presentDate)
+            student.save()
+            
+            return JsonResponse({
+                "message": "Student updated successfully",
+                "studentID": student.studentID,
+                "studentName": student.studentName,
+                "course": student.course,
+                "presentDate": str(student.presentDate)
+            }, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    
+    elif request.method == "DELETE":
+        try:
+            student = Student.objects.get(studentID=student_id)
+            student.delete()
+            return JsonResponse({"message": "Student deleted successfully"}, status=200)
+        except Student.DoesNotExist:
+            return JsonResponse({"error": "Student not exists"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+

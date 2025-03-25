@@ -22,11 +22,13 @@ services:
       - "8080:8000"
     depends_on:
       - db
-    environment:
-      - DB_HOST=db
-      - DB_NAME=mydb
-      - DB_USER=user
-      - DB_PASS=password
+    env_file:
+      - .env
+    # environment:
+    #   - DB_HOST=db
+    #   - DB_NAME=mydb
+    #   - DB_USER=user
+    #   - DB_PASS=password
 
 volumes:
   mysql_data:
