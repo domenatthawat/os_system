@@ -4,6 +4,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .models import Student
+from django.shortcuts import render
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 
 def home(request):
     return JsonResponse({"message": "Welcome to My Django App!"})
@@ -121,3 +125,30 @@ def student_detail(request, student_id):
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
+@require_http_methods(["GET"])
+def get_student(request, student_id=None):
+    if student_id:
+        try:
+            student = Student.objects.get(pk=student_id)
+            data = {
+                "studentID": student.studentID,
+                "studentName": student.studentName,
+                "course": student.course,
+                "presentDate": student.presentDate
+            }
+            return JsonResponse(data, status=200)
+        except Student.DoesNotExist:
+            return JsonResponse({"error": "Student not exists"}, status=404)
+    else:
+        students = Student.objects.all().values()
+        return JsonResponse(list(students), safe=False)
+
+
+def api_ui(request):
+    return render(request, 'API.html')
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_protected_students(request):
+    students = Student.objects.all().values()
+    return JsonResponse(list(students), safe=False)

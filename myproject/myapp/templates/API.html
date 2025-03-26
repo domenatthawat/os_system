@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student API Interaction</title>
+</head>
+<body>
+  <h2>Add New Student</h2>
+  <input type="text" id="studentID" placeholder="Student ID"><br>
+  <input type="text" id="studentName" placeholder="Full Name"><br>
+  <input type="text" id="course" placeholder="Course Name"><br>
+  <input type="text" id="presentDate" placeholder="Date (yyyy-mm-dd)"><br>
+  <button onclick="addStudent()">Add Student</button>
+
+  <h2>Get Student by ID</h2>
+  <input type="text" id="getID" placeholder="Enter Student ID"><br>
+  <button onclick="getStudent()">Get Student</button>
+
+  <h2>Update Student</h2>
+  <input type="text" id="updateID" placeholder="Student ID"><br>
+  <input type="text" id="updateName" placeholder="New Name"><br>
+  <input type="text" id="updateCourse" placeholder="New Course Name"><br>
+  <input type="text" id="updateDate" placeholder="New Date (yyyy-mm-dd)"><br>
+  <button onclick="updateStudent()">Update Student</button>
+
+  <h2>Delete Student</h2>
+  <input type="text" id="deleteID" placeholder="Student ID to Delete"><br>
+  <button onclick="deleteStudent()">Delete Student</button>
+
+  <h2>Result:</h2>
+  <pre id="result" style="background:#f4f4f4; padding:10px;"></pre>
+
+  <script>
+    const API_BASE = "http://localhost:8080";
+
+    function addStudent() {
+      const data = {
+        studentID: document.getElementById("studentID").value,
+        studentName: document.getElementById("studentName").value,
+        course: document.getElementById("course").value,
+        presentDate: document.getElementById("presentDate").value
+      };
+
+      fetch(`${API_BASE}/student`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(data => showResult(data))
+      .catch(err => showResult(err));
+    }
+
+    function getStudent() {
+      const id = document.getElementById("getID").value;
+      fetch(`${API_BASE}/students/${id}`)
+        .then(res => res.json())
+        .then(data => showResult(data))
+        .catch(err => showResult(err));
+    }
+
+    function updateStudent() {
+      const id = document.getElementById("updateID").value;
+      const data = {
+        studentName: document.getElementById("updateName").value,
+        course: document.getElementById("updateCourse").value,
+        presentDate: document.getElementById("updateDate").value
+      };
+
+      fetch(`${API_BASE}/student/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(data => showResult(data))
+      .catch(err => showResult(err));
+    }
+
+    function deleteStudent() {
+      const id = document.getElementById("deleteID").value;
+      fetch(`${API_BASE}/student/${id}`, {
+        method: "DELETE"
+      })
+      .then(res => res.json())
+      .then(data => showResult(data))
+      .catch(err => showResult(err));
+    }
+
+    function showResult(data) {
+      document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
